@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-
-# TODO allow to instantly create pdf
+import os
 
 
 class texTable(object):
-    """This class is supposed to make the creating of tables simple"""
+    # This class is supposed to make the creating of tables simple
+
+    # Dependencies: numpy
+    # os+pdflatex for creating pdf output
 
     def __init__(self, npMat=None, arrayArray=None):
         if not (npMat is None):
@@ -23,7 +25,7 @@ class texTable(object):
         self.rowNames = None
         self.colmNames = None
 
-    def printTable(self):
+    def getTableString(self):
         cString = ("c|"*self.colms)[:-1]
         if self.rowNames:
             cString += "|c"
@@ -52,17 +54,18 @@ class texTable(object):
         tableString += '''\\end{tabular}
 \\end{table}
 '''
-        print tableString
+        return tableString
 
-    def printStandalone(self):
-        print'''
-\\documentclass{article}
-\\usepackage[left=1cm, a0paper]{geometry}
+    def getStandaloneTable(self, big=False):
+        tmpString = "\\documentclass{article}"
+        if big:
+            tmpString += '''\\usepackage[left=1cm, a0paper]{geometry}
 \\usepackage[graphicx]{realboxes}
-\\usepackage{bm}
-\\begin{document}\n'''
-        self.printTable()
-        print "\\end{document}"
+\\usepackage{bm}'''
+        tmpString += "\\begin{document}\n"
+        tmpString += self.getTableString()
+        tmpString += "\\end{document}"
+        return tmpString
 
     def setNames(self, rowNames=None, colmNames=None):
         if len(colmNames) == self.colms:  # This makes top left corner as empty
@@ -89,6 +92,21 @@ class texTable(object):
             self.rowNames.pop(0)
         self.rows, self.colms = self.colms, self.rows
 
+    def createPDF(self, fileName="table", clean=False):
+        # Needs pdflatex
+        texName = fileName+".tex"
+        if os.path.isfile(texName):
+            print texName, "Already exists!"
+            decision = raw_input("Are you sure you want to overwrite it?[y/n]")
+            if not(decision == "y"):
+                return
+        texFile = open(texName, "w")
+        texFile.write(self.getStandaloneTable())
+        texFile.close()
+        os.system("pdflatex {}".format(texName))
+        if clean:
+            os.system("rm {a}.log {a}.tex {a}.aux".format(a=fileName))
+
     def isValid(self):
         pass
 
@@ -107,16 +125,20 @@ def test():
     print "\n#####\n"
     print tableObj
     print "\n#####\n"
-    tableObj.printTable()
-    tableObj.mirror()
+    print tableObj.getTableString()
     print "\n#####\n"
-    tableObj.printTable()
+    tableObj.mirror()
+    print tableObj.getTableString()
+    print "\n#####\n"
+    print tableObj.getStandaloneTable()
+    tableObj.createPDF(clean=True)
 
     ta = np.array([[1, 2], [3, 4]])
     tableObj2 = texTable(ta)
 
     ta = np.array([[1, 2], [3, 4], [5, 6]])
     tableObj2 = texTable(ta)
+
 
 if __name__ == "__main__":
     test()
