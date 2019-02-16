@@ -115,6 +115,8 @@ def test():
     ta = np.array([[1, 2], [3, 4]])
     tableObj2 = texTable(ta)
 
+    ta = np.array([[1, 2], [3, 4], [5, 6]])
+    tableObj2 = texTable(ta)
 
 if __name__ == "__main__":
     test()
