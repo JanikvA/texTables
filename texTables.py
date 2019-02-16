@@ -5,6 +5,7 @@ import numpy as np
 
 # TODO allow to instantly create pdf
 
+
 class texTable(object):
     """This class is supposed to make the creating of tables simple"""
 
@@ -37,11 +38,11 @@ class texTable(object):
                 if i == self.colms:
                     tableString = tableString[:-2]+"\\\\\n"
                     tableString += "\\hline\n"
-        rowNameIndex=0
+        rowNameIndex = 0
         for i, e in enumerate(np.nditer(self.mat)):
             if self.rowNames and tmp == 1:
                 tableString += self.rowNames[rowNameIndex] + " & "
-                rowNameIndex+=1
+                rowNameIndex += 1
             tableString += str(e) + " & "
             if tmp == self.colms:
                 tmp = 1
@@ -64,30 +65,29 @@ class texTable(object):
         print "\\end{document}"
 
     def setNames(self, rowNames=None, colmNames=None):
-        if len(colmNames)==self.colms: # This makes top left corner as empty
-            colmNames.insert(0," ")
-        elif not(len(colmNames)==self.colms+1):
+        if len(colmNames) == self.colms:  # This makes top left corner as empty
+            colmNames.insert(0, " ")
+        elif not(len(colmNames) == self.colms+1):
             print "WARNING: Not all colms have names"
-        if not (len(rowNames)==self.rows):
+        if not (len(rowNames) == self.rows):
             print "WARNING: Not all rows have names"
         self.rowNames = rowNames
         self.colmNames = colmNames
 
     def mirror(self):
-# Makes colms->rows and rows->colms
-        newArrArr=[]
+        # Makes colms->rows and rows->colms
+        newArrArr = []
         for a in range(self.colms):
-            tmpArr=[]
+            tmpArr = []
             for b in range(self.rows):
                 tmpArr.append(self.mat[b][a])
             newArrArr.append(tmpArr)
-        self.mat=np.array(newArrArr)
-        self.rowNames, self.colmNames= self.colmNames, self.rowNames
+        self.mat = np.array(newArrArr)
+        self.rowNames, self.colmNames = self.colmNames, self.rowNames
         if self.rowNames:
-            self.colmNames.insert(0,self.rowNames[0])
+            self.colmNames.insert(0, self.rowNames[0])
             self.rowNames.pop(0)
-        self.rows, self.colms= self.colms, self.rows
-
+        self.rows, self.colms = self.colms, self.rows
 
     def isValid(self):
         pass
